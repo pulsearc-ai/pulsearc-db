@@ -1,0 +1,20 @@
+# Build artifacts
+/target
+**/*.rs.bk
+
+# Test suite (not part of the published crate)
+/tests
+
+# Dev-only assets (not part of the published crate)
+/fuzz
+/examples
+
+# Editor / IDE
+/.idea
+*.iml
+
+# macOS
+.DS_Store
+
+# Backups produced by `cargo package`
+*.orig

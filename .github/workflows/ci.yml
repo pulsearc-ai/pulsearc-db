@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+
+jobs:
+  lint:
+    name: rustfmt + clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: rustfmt
+        run: cargo fmt --all -- --check
+
+      # The library is the published artifact; warnings are denied there.
+      - name: clippy
+        run: cargo clippy --lib --all-features -- -D warnings
+
+  test:
+    name: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Test (default features)
+        run: cargo test --locked
+
+      - name: Test (all features)
+        run: cargo test --locked --all-features
+
+  build:
+    name: build + package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@stable
+
+      - name: Build (default features)
+        run: cargo build --lib
+
+      - name: Build (all features)
+        run: cargo build --lib --all-features
+
+      # Verifies the published crate is self-contained: the tarball must
+      # build in isolation from only the files in the `include` allowlist.
+      - name: Verify publishable package
+        run: cargo package --allow-dirty
